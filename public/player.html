@@ -1,0 +1,345 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Quiz Player</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg-0: #08111f;
+        --bg-1: #101b33;
+        --panel: rgba(14, 23, 42, 0.84);
+        --line: rgba(255, 255, 255, 0.12);
+        --text: #f4f7ff;
+        --muted: #aab7d8;
+        --accent: #67e8f9;
+        --success: #4ade80;
+        --danger: #fb7185;
+        --warning: #fbbf24;
+        --shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
+        --radius: 22px;
+      }
+
+      * { box-sizing: border-box; }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        background:
+          radial-gradient(circle at top left, rgba(124, 58, 237, 0.24), transparent 36%),
+          radial-gradient(circle at top right, rgba(103, 232, 249, 0.18), transparent 30%),
+          linear-gradient(180deg, var(--bg-0), var(--bg-1));
+        color: var(--text);
+        font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+      }
+
+      .app {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 18px;
+        display: grid;
+        gap: 14px;
+      }
+
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(16px);
+      }
+
+      .hero {
+        padding: 16px 18px;
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .hero h1 {
+        margin: 2px 0 0;
+        font-size: clamp(1.5rem, 4vw, 2.3rem);
+      }
+
+      .caption,
+      .hint,
+      .small {
+        margin: 0;
+        color: var(--muted);
+      }
+
+      .pill,
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.08);
+        padding: 7px 11px;
+        color: var(--muted);
+      }
+
+      .pill.live {
+        color: #e6fffb;
+        border-color: rgba(74, 222, 128, 0.35);
+        background: rgba(74, 222, 128, 0.12);
+      }
+
+      .pill.warn {
+        color: #fff3cd;
+        border-color: rgba(251, 191, 36, 0.35);
+        background: rgba(251, 191, 36, 0.12);
+      }
+
+      .pill.error {
+        color: #ffe4e6;
+        border-color: rgba(251, 113, 133, 0.35);
+        background: rgba(251, 113, 133, 0.12);
+      }
+
+      .badge-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--warning);
+      }
+
+      .join-panel,
+      .status-panel,
+      .question-panel,
+      .summary {
+        padding: 16px;
+      }
+
+      .join-form {
+        display: grid;
+        gap: 10px;
+      }
+
+      .field {
+        display: grid;
+        gap: 6px;
+      }
+
+      label {
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      input,
+      textarea,
+      button {
+        font: inherit;
+      }
+
+      input,
+      textarea {
+        width: 100%;
+        color: var(--text);
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 12px 13px;
+        outline: none;
+      }
+
+      input:focus,
+      textarea:focus {
+        border-color: rgba(103, 232, 249, 0.6);
+      }
+
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .button {
+        border: 0;
+        border-radius: 14px;
+        padding: 12px 14px;
+        color: #04111b;
+        font-weight: 700;
+        background: linear-gradient(135deg, var(--accent), #c4f1ff);
+        cursor: pointer;
+      }
+
+      .button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .button.secondary {
+        color: var(--text);
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .status-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .kpi {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.05);
+        padding: 10px 12px;
+      }
+
+      .kpi small {
+        color: var(--muted);
+        display: block;
+      }
+
+      .kpi strong {
+        font-size: 1.1rem;
+      }
+
+      .question-prompt {
+        margin: 0;
+        font-size: clamp(1.3rem, 2.6vw, 1.9rem);
+      }
+
+      .options {
+        margin-top: 12px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .option {
+        width: 100%;
+        text-align: left;
+        border-radius: 14px;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid var(--line);
+        color: var(--text);
+        cursor: pointer;
+      }
+
+      .option.selected {
+        border-color: rgba(103, 232, 249, 0.7);
+        background: rgba(103, 232, 249, 0.14);
+      }
+
+      .option.locked {
+        opacity: 0.7;
+        cursor: not-allowed;
+      }
+
+      .answer-input {
+        min-height: 110px;
+        resize: vertical;
+      }
+
+      .leaderboard {
+        display: grid;
+        gap: 10px;
+      }
+
+      .leader-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .hidden { display: none !important; }
+
+      @media (max-width: 720px) {
+        .status-grid {
+          grid-template-columns: 1fr;
+        }
+        .hero {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <header class="panel hero">
+        <div>
+          <p class="pill live" id="connectionPill"><span class="badge-dot"></span>Disconnected</p>
+          <h1>Quiz Player</h1>
+          <p class="caption" id="joinHint">Use ?room=ABC123 or enter room code below.</p>
+        </div>
+        <div class="badge" id="roomBadge">Room: not set</div>
+      </header>
+
+      <section class="panel join-panel" id="joinPanel">
+        <form class="join-form" id="joinForm">
+          <div class="field">
+            <label for="roomCode">Room code</label>
+            <input id="roomCode" name="roomCode" maxlength="12" placeholder="ABC123" required />
+          </div>
+          <div class="field">
+            <label for="displayName">Display name</label>
+            <input id="displayName" name="displayName" maxlength="24" placeholder="Alex" required />
+          </div>
+          <div class="row">
+            <button class="button" type="submit" id="joinButton">Join game</button>
+            <button class="button secondary" type="button" id="reconnectButton">Reconnect</button>
+          </div>
+          <p class="hint" id="joinMessage"></p>
+          <p class="small" id="playerHint"></p>
+        </form>
+      </section>
+
+      <section class="panel status-panel" id="statusPanel">
+        <div class="status-grid">
+          <div class="kpi"><small>Status</small><strong id="gamePhase">Waiting</strong></div>
+          <div class="kpi"><small>Timer</small><strong id="timerValue">--:--</strong></div>
+          <div class="kpi"><small>Score</small><strong id="scoreValue">0</strong></div>
+        </div>
+      </section>
+
+      <section class="panel question-panel" id="questionPanel">
+        <div class="row">
+          <span class="pill hidden" id="answerState">Answer locked</span>
+          <span class="pill hidden" id="questionTypePill"></span>
+        </div>
+        <h2 class="question-prompt" id="questionPrompt">Waiting for the next question.</h2>
+        <p class="hint" id="questionHint"></p>
+
+        <div class="options hidden" id="optionsContainer"></div>
+
+        <div class="field hidden" id="textAnswerContainer">
+          <label for="textAnswer">Your answer</label>
+          <textarea id="textAnswer" class="answer-input" maxlength="500" placeholder="Type your answer..."></textarea>
+        </div>
+
+        <div class="row">
+          <button class="button" type="button" id="submitAnswerButton">Submit answer</button>
+          <button class="button secondary hidden" type="button" id="clearAnswerButton">Clear</button>
+        </div>
+      </section>
+
+      <section class="panel hidden" id="leaderboardPanel">
+        <h3>Leaderboard</h3>
+        <div class="leaderboard" id="leaderboard"></div>
+      </section>
+
+      <section class="panel summary hidden" id="summaryPanel">
+        <h2>Game over</h2>
+        <p id="summaryText">Final results are in.</p>
+        <p class="hint" id="summaryHint"></p>
+        <div class="leaderboard" id="finalLeaderboard"></div>
+      </section>
+    </main>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="./player.js"></script>
+  </body>
+</html>

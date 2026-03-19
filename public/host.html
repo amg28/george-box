@@ -1,0 +1,129 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Host Console</title>
+    <meta name="description" content="Create a live quiz room and manage the game from the host screen." />
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="/socket.io/socket.io.js"></script>
+    <script defer src="/host.js"></script>
+  </head>
+  <body class="page page-host">
+    <main class="shell host-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Host console</p>
+          <h1>Quiz room control</h1>
+        </div>
+        <div class="status-chip" id="connectionStatus">Disconnected</div>
+      </header>
+
+      <section class="setup-card card" id="setup">
+        <div class="card-heading">
+          <div>
+            <h2>Create lobby</h2>
+            <p>Set host name and create a room for players to join.</p>
+          </div>
+        </div>
+        <form class="setup-form" id="createRoomForm">
+          <label class="field">
+            <span>Host name</span>
+            <input id="hostNameInput" name="hostName" type="text" maxlength="32" placeholder="Alex" autocomplete="name" />
+          </label>
+          <button class="button button-primary" type="submit" id="createRoomButton">Create room</button>
+        </form>
+      </section>
+
+      <section class="room-grid" id="roomArea" hidden>
+        <article class="card room-card" id="roomDetailsCard">
+          <div class="card-heading">
+            <div>
+              <h2>Lobby access</h2>
+              <p>Visible before game starts. Hidden once gameplay begins.</p>
+            </div>
+          </div>
+
+          <div class="room-metrics">
+            <div class="metric">
+              <span>Room code</span>
+              <strong id="roomCode">--</strong>
+            </div>
+            <div class="metric">
+              <span>Join URL</span>
+              <strong id="joinUrl">--</strong>
+            </div>
+          </div>
+
+          <div class="join-actions">
+            <button class="button button-secondary" type="button" id="copyRoomCodeButton">Copy code</button>
+            <button class="button button-secondary" type="button" id="copyJoinUrlButton">Copy join link</button>
+          </div>
+
+          <div class="qr-wrap">
+            <img id="qrImage" alt="QR code for joining the room" />
+            <p>Scan to join from a phone or tablet.</p>
+          </div>
+        </article>
+
+        <article class="card lobby-card" id="lobbyCard">
+          <div class="card-heading">
+            <div>
+              <h2>Lobby players</h2>
+              <p>Connected players before start.</p>
+            </div>
+            <div class="mini-pill" id="playerCount">0 / 10</div>
+          </div>
+          <ul class="player-list" id="playerList"></ul>
+        </article>
+      </section>
+
+      <section class="controls-grid">
+        <article class="card game-card">
+          <div class="card-heading">
+            <div>
+              <h2>Question screen</h2>
+              <p>Main stream view during gameplay.</p>
+            </div>
+            <div class="meta-pill-wrap">
+              <div class="mini-pill" id="roomCodeCompact">Room --</div>
+              <div class="mini-pill" id="gamePhase">Waiting</div>
+            </div>
+          </div>
+
+          <div class="question-block">
+            <div class="question-meta">
+              <span id="questionIndex">Question 0</span>
+              <span id="questionType">No question loaded</span>
+            </div>
+            <h3 id="questionPrompt">Create a room to begin.</h3>
+            <div class="timer-row">
+              <div class="timer-rail" aria-hidden="true">
+                <div class="timer-fill" id="timerFill"></div>
+              </div>
+              <div class="timer-value" id="timerValue">00:00</div>
+            </div>
+          </div>
+
+          <div class="option-list" id="questionOptions"></div>
+          <div class="answer-input" id="questionAnswerPreview" hidden></div>
+
+          <div class="action-row">
+            <button class="button button-primary" type="button" id="startGameButton" disabled>Start game</button>
+            <button class="button button-secondary" type="button" id="nextQuestionButton" disabled>Next question</button>
+          </div>
+        </article>
+
+        <article class="card leaderboard-card" id="leaderboardCard">
+          <div class="card-heading">
+            <div>
+              <h2>Leaderboard</h2>
+              <p>Visible between rounds or when needed.</p>
+            </div>
+          </div>
+          <ol class="leaderboard-list" id="leaderboardList"></ol>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>
