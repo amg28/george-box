@@ -1,80 +1,43 @@
-# Quiz MVP
+# Quiz MVP (TypeScript)
 
-Minimal realtime quiz app for one host and up to 10 live players.
+Realtime quiz app for one host and up to 10 players.
 
-## What this MVP includes
+## Stack
 
-- Host room creation and lobby display.
-- Player join flow via room code and browser-based input.
-- Multiple-choice and text questions.
-- Server-authoritative timers and scoring.
-- Live lobby, question, timer, and leaderboard updates over Socket.IO.
-- Player reconnect using stored `playerId`.
+- Server: Node.js + Express + Socket.IO
+- Frontend: static HTML/CSS + TypeScript browser bundles
+- Language: TypeScript (strict mode)
+- Tests: Vitest with coverage
 
-## Quick Start
+## Project Structure
 
-1. Install dependencies.
-2. Start the backend server.
-3. Open the host page in one browser.
-4. Join from a phone or tablet using the room code or QR link.
+- `src/server/main.ts`: server bootstrap
+- `src/server/game/*`: core game domain/engine/scoring
+- `src/server/realtime/*`: socket event wiring + emitters
+- `src/server/http/routes.ts`: REST endpoints
+- `src/client/host/main.ts`: host UI logic
+- `src/client/player/main.ts`: player UI logic
+- `src/client/shared/*`: shared browser helpers/types
+- `tests/game-engine.test.ts`: unit tests for core game mechanics
+- `public/*.html`, `public/styles.css`: static UI shells/styles
 
-Typical local flow:
+## Commands
 
-```bash
-npm install
-npm run dev
-```
+- `npm run dev`: build client bundles and run TS server with `tsx`
+- `npm run typecheck`: strict TypeScript checks
+- `npm run test`: run unit tests with coverage
+- `npm run build`: typecheck + client/server builds
+- `npm start`: run bundled server from `dist/server/main.js`
 
-If the project uses separate scripts later, keep the same flow:
+## Core Behavior
 
-- backend: start the API and Socket.IO server
-- host: open the host page
-- player: open the join page from a mobile browser
+- Host creates room and shares `player.html?room=ROOMCODE`
+- Players join with name + room code
+- Server is authoritative for question flow, timers, submissions, and scoring
+- One answer per player per question
+- Auto reconnect support via stored `playerId`
 
-## Core Socket Events
+## Notes
 
-Shared events:
-
-- `session:update`
-- `lobby:update`
-- `question:start`
-- `question:locked`
-- `timer:tick`
-- `leaderboard:update`
-- `game:end`
-- `error`
-
-Host events:
-
-- `host:createRoom`
-- `host:startGame`
-- `host:nextQuestion`
-
-Player events:
-
-- `player:join`
-- `player:reconnect`
-- `player:submitAnswer`
-
-Backend responsibilities:
-
-- Validate room state and player identity.
-- Accept or reject joins and submissions.
-- Keep the canonical timer and leaderboard.
-- Broadcast all state changes to connected clients.
-
-## Known Limitations
-
-- No persistent quiz authoring UI yet.
-- No authentication for hosts beyond the room flow.
-- No Redis or multi-instance scaling yet.
-- No audit history or analytics dashboard yet.
-- Reconnect is best-effort and depends on stored player identity.
-
-## Next Improvements
-
-- Add PostgreSQL persistence for quizzes, sessions, and answers.
-- Add Redis for room state and multi-instance broadcasts.
-- Add better host controls for question editing and results review.
-- Add stronger join tokens and rate limiting.
-- Add end-to-end tests for join, submit, reconnect, and scoring.
+- Runtime bundles (`public/host.js`, `public/player.js`) are generated from TypeScript.
+- This MVP stores live state in memory; persistence (Postgres/Redis) is a next step.
